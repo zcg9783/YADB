@@ -5,7 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
-public class Notify {
+public class Main {
 
     public static void main(String[] args) {
         try {
