@@ -1,50 +1,31 @@
 package com.ysbing.yadb;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.os.Looper;
+import android.widget.Toast;
+import android.app.ActivityThread;
 import android.content.Context;
-import android.os.Build;
 
 public class Main {
 
     public static void main(String[] args) {
         try {
-            Context context = (Context) Class.forName("android.app.ActivityThread")
-                    .getMethod("currentApplication")
-                    .invoke(null);
+            // 获取系统Context
+            ActivityThread activityThread = ActivityThread.systemMain();
+            Context context = activityThread.getSystemContext();
             
-            NotificationManager manager = (NotificationManager) 
-                    context.getSystemService(Context.NOTIFICATION_SERVICE);
+            // 准备主线程Looper
+            Looper.prepareMainLooper();
             
-            String channelId = "app_process_channel";
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(
-                        channelId,
-                        "App Process",
-                        NotificationManager.IMPORTANCE_DEFAULT
-                );
-                manager.createNotificationChannel(channel);
-            }
+            // 显示Toast
+            Toast.makeText(context, "Hello", Toast.LENGTH_LONG).show();
             
-            // 构建通知
-            Notification.Builder builder = new Notification.Builder(context);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(channelId);
-            }
-            
-            Notification notification = builder
-                    .setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .setContentTitle("你好")
-                    .setContentText("Hello")
-                    .setAutoCancel(true)
-                    .build();
-            
-            // 发送通知
-            manager.notify(1, notification);
-            System.out.println("通知已发送");
+            // 保持进程运行足够长时间以显示Toast
+            Thread.sleep(3500);
         } catch (Exception e) {
             System.err.println("错误: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // 退出Looper
+            Looper.myLooper().quit();
         }
     }
 }
